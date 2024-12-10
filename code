@@ -1,0 +1,107 @@
+import re
+import string
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import nltk
+
+# Sample dataset
+data = [
+    ("I love this product, it is amazing!", 1),
+    ("Absolutely wonderful experience, highly recommend.", 1),
+    ("Terrible quality, very disappointed.", 0),
+    ("Worst purchase ever. Do not buy this.", 0),
+    ("Not bad, but could be better.", 1),
+    ("I hate it. Completely useless.", 0),
+    ("I dislike this product, it is awful.", 0),
+    ("Horrible experience, not worth the money.", 0),
+    ("Fantastic quality, exceeded my expectations!", 1),
+    ("Really terrible, I regret buying it.", 0),
+    ("I love this product, it is amazing!", 1),
+    ("Absolutely wonderful experience, highly recommend.", 1),
+    ("Terrible quality, very disappointed.", 0),
+    ("Worst purchase ever. Do not buy this.", 0),
+    ("Not bad, but could be better.", 1),
+    ("I hate it. Completely useless.", 0),
+    ("It's okay, not great but not terrible.", 1),
+    ("Excellent! Would buy again.", 1),
+    ("Awful, waste of money.", 0),
+    ("Good value for the price.", 1)
+]
+
+# Separate text and labels
+texts, labels = zip(*data)
+
+# Text preprocessing function
+def preprocess_text(text):
+    # Convert to lowercase
+    text = text.lower()
+    # Remove URLs
+    text = re.sub(r"http\S+|www\S+|https\S+", '', text, flags=re.MULTILINE)
+    # Remove punctuation
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    # Tokenize
+    words = word_tokenize(text)
+    # Remove stopwords
+    stop_words = set(stopwords.words('english'))
+    words = [word for word in words if word not in stop_words]
+    return ' '.join(words)
+
+# Preprocess all texts
+preprocessed_texts = [preprocess_text(text) for text in texts]
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(preprocessed_texts, labels, test_size=0.2, random_state=42)
+
+# Feature extraction using TF-IDF
+vectorizer = TfidfVectorizer(max_features=5000)
+X_train_tfidf = vectorizer.fit_transform(X_train)
+X_test_tfidf = vectorizer.transform(X_test)
+
+# Train a model
+model = LogisticRegression()
+model.fit(X_train_tfidf, y_train)
+
+# Predict sentiment for inputs
+def predict_sentiment(text):
+    preprocessed = preprocess_text(text)
+    
+    vectorized = vectorizer.transform([preprocessed])
+    
+    prediction = model.predict(vectorized)
+    probabilities = model.predict_proba(vectorized)
+    
+    score = probabilities[0][prediction[0]]
+    sentiment = "Positive" if prediction[0] == 1 else "Negative"
+    return sentiment, score * 100
+
+# Main function with replay option
+def sentiment_analysis():
+    while True:
+        print("Enter texts for sentiment analysis (type 'done' to finish):")
+        user_texts = []
+
+        # Collect user inputs
+        while True:
+            text = input("Enter text: ")
+            if text.lower() == "done":
+                break
+            user_texts.append(text)
+
+        # Perform sentiment analysis on each input
+        for text in user_texts:
+            sentiment, score = predict_sentiment(text)
+            print(f"Comment: {text} \nSentiment: {sentiment} \nScore: {score:.2f}%\n\n")
+        
+        # Ask if the user wants to analyze more texts
+        again = input("\nWould you like to analyze more texts? (yes/no): ").strip().lower()
+        if again not in ['yes', 'y']:
+            print("Thank you for using the sentiment analysis tool. Goodbye!")
+            break
+
+# Run the main function
+if _name_ == "_main_":
+    sentiment_analysis()
