@@ -1,2 +1,18 @@
 # Sentiment-Analysis-Dashboard-on-Social-Media
-A project that uses NLP and machine learning to analyze social media sentiment. It collects data, processes it, and visualizes sentiment trends on an interactive dashboard for insights into public opinion.
+This project analyzes and visualizes public sentiment from social media platforms using Natural Language Processing (NLP) and machine learning. It collects data in real-time, processes it to classify sentiment as positive, negative, or neutral, and displays the results on an interactive dashboard.
+
+Features
+Real-time social media data collection.
+NLP-based text processing for sentiment classification.
+Machine learning models for accurate analysis.
+Interactive dashboard with visualizations like graphs and charts.
+Technologies Used
+Programming: Python
+Libraries: scikit-learn, Pandas, Matplotlib, NLP libraries
+Dashboard: Streamlit or Dash
+
+Applications
+Brand reputation tracking
+Customer feedback analysis
+Public opinion monitoring
+
